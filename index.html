@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ZIXON — Jual Beli Kendaraan Premium</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<!-- GSAP + ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+
+<style>
+/* ===========================
+   RESET & BASE
+=========================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:     #0A0A0A;
+  --offblack:  #111111;
+  --card:      #161616;
+  --border:    #2A2A2A;
+  --gray-dark: #444444;
+  --gray:      #888888;
+  --silver:    #C8C8C8;
+  --white:     #F5F5F5;
+  --pure:      #FFFFFF;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+html { scroll-behavior: smooth; overflow-x: hidden; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--white); color: var(--black); }
+
+/* ===========================
+   SCROLLBAR
+=========================== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--black); }
+::-webkit-scrollbar-thumb { background: var(--gray); border-radius: 2px; }
+
+/* ===========================
+   LOADER
+=========================== */
+#loader {
+  position: fixed; inset: 0; background: var(--black); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+}
+.loader-logo {
+  font-family: var(--font-display); font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 900; letter-spacing: .2em; color: var(--white);
+  opacity: 0;
+}
+.loader-bar-wrap {
+  width: 180px; height: 1px; background: var(--border); overflow: hidden;
+}
+.loader-bar {
+  height: 100%; width: 0%; background: var(--white);
+  transition: width 0.05s linear;
+}
+.loader-pct {
+  font-size: 11px; letter-spacing: .2em; color: var(--gray);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===========================
+   CURSOR (desktop only)
+=========================== */
+@media (pointer: fine) {
+  body { cursor: none; }
+  #cursor {
+    position: fixed; width: 10px; height: 10px; background: var(--white);
+    border-radius: 50%; pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform .1s, width .3s var(--ease-out), height .3s var(--ease-out), opacity .3s;
+    mix-blend-mode: difference;
+  }
+  #cursor.hover { width: 40px; height: 40px; }
+  a, button, [data-cursor] { cursor: none; }
+}
+
+/* ===========================
+   NAV
+=========================== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 20px 5vw;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background .4s, border-color .4s, padding .4s;
+  border-bottom: 1px solid transparent;
+}
+nav.scrolled {
+  background: rgba(10,10,10,.9);
+  backdrop-filter: blur(20px);
+  border-color: var(--border);
+  padding: 14px 5vw;
+}
+.nav-logo {
+  font-family: var(--font-display); font-size: 1.4rem; font-weight: 900;
+  letter-spacing: .2em; color: var(--white); text-decoration: none;
+}
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a {
+  color: var(--gray); font-size: .85rem; font-weight: 500; letter-spacing: .1em;
+  text-transform: uppercase; text-decoration: none;
+  transition: color .3s; position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -3px; left: 0; width: 0; height: 1px;
+  background: var(--white); transition: width .3s var(--ease-out);
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  background: var(--white); color: var(--black);
+  padding: 8px 22px; border-radius: 2px;
+  font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  text-decoration: none;
+  transition: background .3s, color .3s, transform .2s;
+}
+.nav-cta:hover { background: var(--silver); transform: translateY(-1px); }
+.nav-mobile-btn {
+  display: none; background: none; border: none; color: var(--white);
+  font-size: 1.4rem; cursor: pointer; padding: 4px;
+}
+
+/* ===========================
+   HERO
+=========================== */
+#hero {
+  min-height: 100svh; display: flex; align-items: center;
+  position: relative; overflow: hidden;
+  padding: 120px 5vw 80px;
+}
+.hero-bg {
+  position: absolute; inset: 0; overflow: hidden;
+}
+.hero-bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  opacity: .3;
+}
+.hero-bg-glow {
+  position: absolute; top: 20%; right: -20%; width: 60vw; height: 60vw;
+  background: radial-gradient(ellipse, rgba(255,255,255,.04) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: glow-pulse 6s ease-in-out infinite;
+}
+@keyframes glow-pulse {
+  0%, 100% { transform: scale(1) translate(0,0); }
+  50% { transform: scale(1.1) translate(-3%, 2%); }
+}
+.hero-number {
+  position: absolute; right: 5vw; bottom: 80px;
+  font-family: var(--font-display); font-size: clamp(8rem, 20vw, 18rem);
+  font-weight: 900; color: transparent;
+  -webkit-text-stroke: 1px var(--border);
+  line-height: 1; user-select: none; pointer-events: none;
+  letter-spacing: -.02em;
+}
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 12px;
+  font-size: .75rem; font-weight: 500; letter-spacing: .25em;
+  text-transform: uppercase; color: var(--gray); margin-bottom: 28px;
+  opacity: 0;
+}
+.hero-eyebrow::before {
+  content: ''; width: 32px; height: 1px; background: var(--gray);
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7vw, 7.5rem);
+  font-weight: 900; line-height: 1.0; letter-spacing: -.02em;
+  color: var(--white); margin-bottom: 32px; max-width: 900px;
+  opacity: 0;
+}
+.hero-title .line { display: block; overflow: hidden; }
+.hero-title .italic { font-style: italic; color: var(--silver); }
+.hero-sub {
+  font-size: clamp(.9rem, 1.5vw, 1.1rem); color: var(--gray);
+  max-width: 480px; line-height: 1.7; margin-bottom: 48px;
+  opacity: 0;
+}
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; opacity: 0; margin-bottom: 0; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--white); color: var(--black);
+  padding: 16px 36px; border-radius: 2px;
+  font-size: .9rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  text-decoration: none; border: none;
+  transition: background .3s, transform .3s var(--ease-out), box-shadow .3s;
+  position: relative; overflow: hidden;
+}
+.btn-primary::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,.2) 100%);
+  opacity: 0; transition: opacity .3s;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(255,255,255,.1); }
+.btn-primary:hover::after { opacity: 1; }
+.btn-arrow { transition: transform .3s; }
+.btn-primary:hover .btn-arrow { transform: translateX(5px); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: transparent; color: var(--white);
+  padding: 16px 36px; border-radius: 2px;
+  font-size: .9rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  text-decoration: none; border: 1px solid var(--border);
+  transition: border-color .3s, transform .3s var(--ease-out), background .3s;
+}
+.btn-ghost:hover { border-color: var(--gray); background: rgba(255,255,255,.03); transform: translateY(-3px); }
+.hero-stats {
+  display: flex; gap: 48px; opacity: 0;
+  margin-top: 48px; flex-wrap: wrap;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
+.stat-item { display: flex; flex-direction: column; gap: 4px; }
+.stat-num {
+  font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+.stat-label { font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; color: var(--gray); }
+.scroll-indicator {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0;
+}
+.scroll-indicator span { font-size: .65rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gray); }
+.scroll-line {
+  width: 1px; height: 40px; background: linear-gradient(to bottom, var(--gray), transparent);
+  animation: scroll-line 2s ease-in-out infinite;
+}
+@keyframes scroll-line {
+  0% { transform: scaleY(0); transform-origin: top; }
+  50% { transform: scaleY(1); transform-origin: top; }
+  51% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+/* ===========================
+   SECTION COMMONS
+=========================== */
+section { position: relative; }
+.section-inner { padding: 120px 5vw; max-width: 1400px; margin: 0 auto; }
+.section-header { margin-bottom: 72px; }
+.section-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: .7rem; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--gray); margin-bottom: 20px;
+}
+.section-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--gray); }
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 900; line-height: 1.1; letter-spacing: -.02em; color: var(--white);
+}
+.section-title span { font-style: italic; color: var(--silver); }
+
+/* ===========================
+   FILTER TABS
+=========================== */
+.filter-tabs {
+  display: flex; gap: 4px; margin-bottom: 48px; flex-wrap: wrap;
+}
+.filter-tab {
+  padding: 10px 24px; background: transparent; color: var(--gray);
+  border: 1px solid var(--border); border-radius: 2px;
+  font-size: .8rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  cursor: pointer; transition: all .3s; position: relative; overflow: hidden;
+}
+.filter-tab::before {
+  content: ''; position: absolute; inset: 0;
+  background: var(--white); transform: translateY(100%);
+  transition: transform .3s var(--ease-out);
+}
+.filter-tab span { position: relative; z-index: 1; }
+.filter-tab:hover { color: var(--white); border-color: var(--white); }
+.filter-tab:hover::before { transform: translateY(0); color: var(--black); }
+.filter-tab:hover span { color: var(--black); }
+.filter-tab.active { background: var(--white); color: var(--black); border-color: var(--white); }
+.filter-tab.active span { color: var(--black); }
+
+/* ===========================
+   PRODUCT GRID
+=========================== */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2px;
+}
+.product-card {
+  background: var(--card); position: relative; overflow: hidden;
+  cursor: pointer; transform: translateY(40px); opacity: 0;
+  transition: transform .5s var(--ease-out);
+  border: 1px solid transparent;
+}
+.product-card:hover { border-color: var(--border); z-index: 2; }
+.card-image-wrap {
+  position: relative; overflow: hidden; aspect-ratio: 16/10;
+  background: var(--offblack);
+}
+.card-image-wrap img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .8s var(--ease-out), filter .5s;
+  filter: grayscale(30%);
+}
+.product-card:hover .card-image-wrap img {
+  transform: scale(1.07); filter: grayscale(0%);
+}
+.card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(10,10,10,.9) 100%);
+  opacity: 0; transition: opacity .4s;
+  display: flex; align-items: flex-end; padding: 20px;
+}
+.product-card:hover .card-overlay { opacity: 1; }
+.card-overlay-text {
+  font-size: .75rem; color: var(--silver); line-height: 1.5;
+  transform: translateY(10px); transition: transform .4s .05s var(--ease-out);
+}
+.product-card:hover .card-overlay-text { transform: translateY(0); }
+.card-badge {
+  position: absolute; top: 16px; left: 16px;
+  background: var(--white); color: var(--black);
+  font-size: .65rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 1px;
+}
+.card-badge.motor { background: var(--gray-dark); color: var(--white); }
+.card-body { padding: 24px; }
+.card-category {
+  font-size: .65rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--gray); margin-bottom: 8px;
+}
+.card-name {
+  font-family: var(--font-display); font-size: 1.25rem; font-weight: 700;
+  color: var(--white); margin-bottom: 12px; line-height: 1.2;
+}
+.card-specs {
+  display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.card-spec {
+  display: flex; align-items: center; gap: 5px;
+  font-size: .72rem; color: var(--gray); letter-spacing: .05em;
+}
+.card-spec svg { opacity: .6; }
+.card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 20px; border-top: 1px solid var(--border);
+}
+.card-price {
+  font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; color: var(--white);
+}
+.card-price .price-prefix {
+  font-family: var(--font-body); font-size: .7rem; font-weight: 400;
+  color: var(--gray); display: block; margin-bottom: 2px; letter-spacing: .1em;
+}
+.card-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; color: var(--white);
+  padding: 9px 18px; border-radius: 2px;
+  font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  border: 1px solid var(--border); cursor: pointer;
+  transition: all .3s; white-space: nowrap;
+}
+.card-btn:hover { background: var(--white); color: var(--black); border-color: var(--white); }
+
+/* ===========================
+   SECTION DIVIDER
+=========================== */
+.divider {
+  width: 100%; height: 1px; background: var(--border);
+  position: relative; overflow: visible;
+}
+.divider::before {
+  content: ''; position: absolute; left: 5vw; top: 50%;
+  transform: translateY(-50%);
+  width: 40px; height: 3px; background: var(--white);
+}
+
+/* ===========================
+   SEJARAH PERUSAHAAN
+=========================== */
+#sejarah { background: var(--black); }
+.timeline {
+  position: relative; display: flex; flex-direction: column; gap: 0;
+  padding-left: 40px;
+}
+.timeline::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+  width: 1px; background: var(--border);
+}
+.timeline-item {
+  position: relative; padding: 0 0 56px 40px;
+  opacity: 0; transform: translateX(-20px);
+}
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot {
+  position: absolute; left: -5px; top: 6px;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--black); border: 1px solid var(--gray);
+  transition: background .3s, border-color .3s;
+  box-shadow: 0 0 0 4px var(--black);
+}
+.timeline-item:hover .timeline-dot { background: var(--white); border-color: var(--white); }
+.timeline-year {
+  font-family: var(--font-display); font-size: .75rem; font-weight: 700;
+  letter-spacing: .25em; color: var(--gray); text-transform: uppercase;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 12px;
+}
+.timeline-year::after {
+  content: ''; flex: 0 0 24px; height: 1px; background: var(--border);
+}
+.timeline-title {
+  font-family: var(--font-display); font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-weight: 700; color: var(--white); margin-bottom: 12px; line-height: 1.2;
+}
+.timeline-desc {
+  font-size: .9rem; color: var(--gray); line-height: 1.75; max-width: 600px;
+}
+.timeline-tag {
+  display: inline-block; margin-top: 14px;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--gray); font-size: .65rem; letter-spacing: .15em;
+  text-transform: uppercase; padding: 4px 12px; border-radius: 1px;
+}
+.founder-quote {
+  margin-top: 64px; padding: 40px;
+  border: 1px solid var(--border); position: relative;
+  opacity: 0; transform: translateY(20px);
+}
+.founder-quote::before {
+  content: '"'; position: absolute; top: -28px; left: 32px;
+  font-family: var(--font-display); font-size: 5rem; font-weight: 900;
+  color: var(--border); line-height: 1;
+}
+.founder-quote-text {
+  font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.3rem);
+  font-style: italic; color: var(--silver); line-height: 1.7;
+  margin-bottom: 24px;
+}
+.founder-info { display: flex; align-items: center; gap: 16px; }
+.founder-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--border); display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--white);
+  flex-shrink: 0;
+}
+.founder-name { font-size: .85rem; font-weight: 600; color: var(--white); }
+.founder-role { font-size: .72rem; letter-spacing: .12em; color: var(--gray); text-transform: uppercase; }
+
+/* ===========================
+   WHY US
+=========================== */
+#why { background: var(--offblack); }
+.why-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2px;
+}
+.why-item {
+  padding: 40px 32px; border: 1px solid var(--border);
+  transition: border-color .3s, background .3s;
+  opacity: 0; transform: translateY(30px);
+}
+.why-item:hover { border-color: var(--gray); background: var(--card); }
+.why-number {
+  font-family: var(--font-display); font-size: 3.5rem; font-weight: 900;
+  color: var(--border); line-height: 1; margin-bottom: 20px;
+  transition: color .3s;
+}
+.why-item:hover .why-number { color: var(--gray); }
+.why-title { font-size: 1rem; font-weight: 600; color: var(--white); margin-bottom: 10px; }
+.why-desc { font-size: .875rem; color: var(--gray); line-height: 1.65; }
+
+/* ===========================
+   MODAL
+=========================== */
+#modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.85);
+  backdrop-filter: blur(12px);
+  z-index: 500; display: none; align-items: center; justify-content: center;
+  padding: 20px;
+}
+#modal-overlay.open { display: flex; }
+.modal {
+  background: var(--card); border: 1px solid var(--border); border-radius: 4px;
+  width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto;
+  position: relative;
+}
+.modal::-webkit-scrollbar { width: 3px; }
+.modal::-webkit-scrollbar-thumb { background: var(--border); }
+.modal-close {
+  position: sticky; top: 16px; left: calc(100% - 52px);
+  float: right; margin: 16px 16px 0 0;
+  background: var(--border); border: none; color: var(--white);
+  width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; z-index: 10;
+  transition: background .3s, transform .3s;
+}
+.modal-close:hover { background: var(--gray); transform: rotate(90deg); }
+.modal-img-wrap {
+  aspect-ratio: 16/7; overflow: hidden; position: relative;
+  background: var(--offblack);
+}
+.modal-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(20%);
+}
+.modal-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, var(--card) 100%);
+}
+.modal-body { padding: 32px; }
+.modal-eyebrow {
+  font-size: .7rem; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--gray); margin-bottom: 10px;
+}
+.modal-title {
+  font-family: var(--font-display); font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 900; color: var(--white); margin-bottom: 8px;
+}
+.modal-price {
+  font-family: var(--font-display); font-size: 1.6rem; font-weight: 700;
+  color: var(--white); margin-bottom: 28px;
+}
+.modal-price span { font-size: .75rem; font-family: var(--font-body); color: var(--gray); font-weight: 400; }
+.modal-section-title {
+  font-size: .75rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--gray); margin-bottom: 16px; margin-top: 32px;
+  display: flex; align-items: center; gap: 10px;
+}
+.modal-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.spec-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border);
+}
+.spec-item {
+  background: var(--offblack); padding: 16px;
+}
+.spec-label { font-size: .65rem; letter-spacing: .15em; text-transform: uppercase; color: var(--gray); margin-bottom: 5px; }
+.spec-value { font-size: .9rem; font-weight: 600; color: var(--white); }
+.history-timeline { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+.history-item {
+  display: flex; gap: 16px; padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+}
+.history-item:last-child { border-bottom: none; }
+.history-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--white); flex-shrink: 0; margin-top: 6px;
+  box-shadow: 0 0 0 3px var(--border);
+}
+.history-content {}
+.history-date { font-size: .7rem; letter-spacing: .1em; color: var(--gray); margin-bottom: 4px; }
+.history-text { font-size: .875rem; color: var(--silver); line-height: 1.6; }
+.modal-actions {
+  display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap;
+}
+.btn-whatsapp {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--white); color: var(--black);
+  padding: 14px 28px; border-radius: 2px;
+  font-size: .85rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: transform .3s var(--ease-out), box-shadow .3s, background .3s;
+}
+.btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(255,255,255,.12); background: var(--silver); }
+.btn-whatsapp svg { flex-shrink: 0; }
+
+/* ===========================
+   LOKASI KAMI
+=========================== */
+#lokasi { background: var(--offblack); }
+.lokasi-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 2px; align-items: start;
+}
+@media (max-width: 900px) {
+  .lokasi-grid { grid-template-columns: 1fr; }
+}
+.map-wrap {
+  position: relative; overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.map-wrap iframe {
+  width: 100%; height: 460px; border: none; display: block;
+  filter: grayscale(40%) invert(92%) contrast(90%);
+  transition: filter .4s;
+}
+.map-wrap:hover iframe { filter: grayscale(0%) invert(0%) contrast(100%); }
+.map-label {
+  position: absolute; top: 16px; left: 16px;
+  background: var(--black); color: var(--white);
+  font-size: .65rem; letter-spacing: .15em; text-transform: uppercase;
+  font-weight: 600; padding: 6px 14px; border-radius: 1px;
+  border: 1px solid var(--border);
+}
+.nearby-list { display: flex; flex-direction: column; gap: 2px; }
+.nearby-item {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 20px 24px;
+  display: flex; align-items: flex-start; gap: 16px;
+  transition: border-color .3s, background .3s;
+  opacity: 0; transform: translateX(20px);
+  cursor: pointer; text-decoration: none;
+}
+.nearby-item:hover { border-color: var(--gray); background: var(--offblack); }
+.nearby-icon {
+  width: 36px; height: 36px; border-radius: 2px;
+  background: var(--border); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: .7rem; font-weight: 700; color: var(--white);
+  letter-spacing: .05em;
+}
+.nearby-icon.service { background: var(--gray-dark); }
+.nearby-content { flex: 1; min-width: 0; }
+.nearby-name { font-size: .9rem; font-weight: 600; color: var(--white); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nearby-addr { font-size: .75rem; color: var(--gray); line-height: 1.5; margin-bottom: 8px; }
+.nearby-meta { display: flex; align-items: center; gap: 12px; }
+.nearby-rating {
+  display: flex; align-items: center; gap: 4px;
+  font-size: .72rem; color: var(--white); font-weight: 600;
+}
+.nearby-rating::before { content: '★'; color: var(--white); font-size: .65rem; }
+.nearby-type {
+  font-size: .62rem; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--gray); border: 1px solid var(--border); padding: 2px 8px; border-radius: 1px;
+}
+.nearby-arrow { color: var(--gray); font-size: .85rem; flex-shrink: 0; margin-top: 2px; transition: transform .3s, color .3s; }
+.nearby-item:hover .nearby-arrow { transform: translateX(4px); color: var(--white); }
+
+/* ===========================
+   FOOTER
+=========================== */
+footer {
+  background: var(--offblack);
+  border-top: 1px solid var(--border);
+  padding: 60px 5vw 32px;
+}
+.footer-inner {
+  max-width: 1400px; margin: 0 auto;
+  display: grid; grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 48px; margin-bottom: 48px;
+}
+.footer-brand-name {
+  font-family: var(--font-display); font-size: 1.8rem; font-weight: 900;
+  letter-spacing: .1em; color: var(--white); margin-bottom: 14px;
+}
+.footer-brand-desc { font-size: .875rem; color: var(--gray); line-height: 1.7; max-width: 280px; }
+.footer-col-title {
+  font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--white); margin-bottom: 20px; font-weight: 600;
+}
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-links a {
+  font-size: .875rem; color: var(--gray); text-decoration: none;
+  transition: color .3s;
+}
+.footer-links a:hover { color: var(--white); }
+.footer-bottom {
+  max-width: 1400px; margin: 0 auto;
+  padding-top: 24px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+}
+.footer-copy { font-size: .78rem; color: var(--gray); }
+.footer-copy span { color: var(--white); font-weight: 600; }
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 900px) {
+  .nav-links, .nav-cta { display: none; }
+  .nav-mobile-btn { display: block; }
+  #hero { flex-direction: column; justify-content: center; padding-bottom: 120px; }
+  .hero-number { display: none; }
+  .scroll-indicator { display: none; }
+  .footer-inner { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .section-inner { padding: 80px 5vw; }
+  .product-grid { grid-template-columns: 1fr; gap: 2px; }
+  .footer-inner { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; }
+  .btn-primary, .btn-ghost { text-align: center; justify-content: center; }
+  .modal-body { padding: 20px; }
+  .spec-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===========================
+   MOBILE NAV MENU
+=========================== */
+#mobile-nav {
+  position: fixed; inset: 0; background: var(--black); z-index: 200;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 32px;
+}
+#mobile-nav.open { display: flex; }
+#mobile-nav a {
+  font-family: var(--font-display); font-size: 2rem; font-weight: 700;
+  color: var(--white); text-decoration: none; text-align: center;
+  opacity: 0; transform: translateY(20px);
+  transition: color .3s;
+}
+#mobile-nav a:hover { color: var(--silver); }
+.mobile-nav-close {
+  position: absolute; top: 24px; right: 5vw;
+  background: none; border: none; color: var(--white);
+  font-size: 1.8rem; cursor: pointer;
+}
+
+/* ===========================
+   TOAST
+=========================== */
+.toast {
+  position: fixed; bottom: 32px; right: 32px; z-index: 600;
+  background: var(--white); color: var(--black);
+  padding: 14px 22px; border-radius: 2px; font-size: .85rem; font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  transform: translateY(20px); opacity: 0;
+  transition: transform .4s var(--ease-out), opacity .4s;
+  pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">ZIXON</div>
+  <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
+  <div class="loader-pct" id="loader-pct">0%</div>
+</div>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+
+<!-- MOBILE NAV -->
+<div id="mobile-nav">
+  <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Tutup menu">✕</button>
+  <a href="#katalog" onclick="closeMobileNav()">Katalog</a>
+  <a href="#sejarah" onclick="closeMobileNav()">Sejarah</a>
+  <a href="#lokasi" onclick="closeMobileNav()">Lokasi</a>
+  <a href="#why" onclick="closeMobileNav()">Tentang Kami</a>
+  <a href="#footer" onclick="closeMobileNav()">Kontak</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">ZIXON</a>
+  <ul class="nav-links">
+    <li><a href="#katalog">Katalog</a></li>
+    <li><a href="#sejarah">Sejarah</a></li>
+    <li><a href="#lokasi">Lokasi</a></li>
+    <li><a href="#why">Tentang Kami</a></li>
+    <li><a href="#footer">Kontak</a></li>
+  </ul>
+  <a href="#katalog" class="nav-cta">Lihat Semua</a>
+  <button class="nav-mobile-btn" id="mobile-nav-btn" aria-label="Buka menu">☰</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-bg-glow"></div>
+  </div>
+  <div class="hero-number" id="hero-number">01</div>
+
+  <div style="position:relative;z-index:1;max-width:1400px;width:100%;margin:0 auto;">
+    <div class="hero-eyebrow" id="hero-eyebrow">Marketplace Kendaraan Premium Indonesia</div>
+    <h1 class="hero-title" id="hero-title">
+      <span class="line">Temukan</span>
+      <span class="line"><em class="italic">Kendaraan</em></span>
+      <span class="line">Impianmu.</span>
+    </h1>
+    <p class="hero-sub" id="hero-sub">Mobil dan motor pilihan berkualitas. Setiap kendaraan hadir dengan riwayat lengkap, inspeksi menyeluruh, dan jaminan kepercayaan.</p>
+    <div class="hero-actions" id="hero-actions">
+      <a href="#katalog" class="btn-primary">
+        Jelajahi Kendaraan
+        <span class="btn-arrow">→</span>
+      </a>
+      <a href="#why" class="btn-ghost">Cara Kerja Kami</a>
+    </div>
+    <div class="hero-stats" id="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num" data-count="100">0</span>
+        <span class="stat-label">Unit Tersedia</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" data-count="2000">0</span>
+        <span class="stat-label">Unit Terjual</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" data-count="99">0</span>
+        <span class="stat-label">% Kepuasan</span>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-indicator" id="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- KATALOG -->
+<section id="katalog">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">Koleksi Pilihan</div>
+      <h2 class="section-title">Katalog <span>Kendaraan</span></h2>
+    </div>
+    <div class="filter-tabs" id="filter-tabs">
+      <button class="filter-tab active" data-filter="all"><span>Semua</span></button>
+      <button class="filter-tab" data-filter="mobil"><span>Mobil</span></button>
+      <button class="filter-tab" data-filter="motor"><span>Motor</span></button>
+    </div>
+    <div class="product-grid" id="product-grid"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SEJARAH PERUSAHAAN -->
+<section id="sejarah">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">Perjalanan Kami</div>
+      <h2 class="section-title">Sejarah <span>Zixon</span></h2>
+    </div>
+
+    <div class="timeline" id="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2018</div>
+        <div class="timeline-title">Lahirnya Sebuah Ide</div>
+        <div class="timeline-desc">Zixon lahir dari kegelisahan dua sahabat lama, Reza dan Farid, yang frustrasi dengan proses jual beli kendaraan yang tidak transparan. Mereka bermimpi menciptakan platform di mana kepercayaan adalah fondasi utama — bukan sekadar janji.</div>
+        <span class="timeline-tag">Founding Story</span>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2019</div>
+        <div class="timeline-title">Unit Pertama Terjual</div>
+        <div class="timeline-desc">Beroperasi dari garasi kecil di Kemang, Jakarta Selatan, Zixon berhasil menjual unit pertamanya — sebuah Toyota Fortuner 2017. Proses inspeksi 150 titik yang kini menjadi standar kami dimulai dari sini. Kepercayaan pembeli pertama itu mengubah segalanya.</div>
+        <span class="timeline-tag">Milestone Pertama</span>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2020</div>
+        <div class="timeline-title">Bertahan di Tengah Badai</div>
+        <div class="timeline-desc">Pandemi memukul industri otomotif keras. Namun Zixon beradaptasi: kami meluncurkan virtual test drive dan layanan inspeksi di rumah pelanggan. Justru di tahun ini kami meraih kepercayaan 200+ pelanggan baru yang menghargai transparansi digital kami.</div>
+        <span class="timeline-tag">Adaptasi & Inovasi</span>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2021</div>
+        <div class="timeline-title">Ekspansi & Koleksi Motor Premium</div>
+        <div class="timeline-desc">Merespons permintaan pasar, Zixon resmi membuka divisi motor premium. Ducati, BMW Motorrad, hingga Harley-Davidson kini hadir di katalog kami. Di tahun yang sama, kantor pertama kami di SCBD resmi dibuka — menandai babak baru yang lebih profesional.</div>
+        <span class="timeline-tag">Ekspansi Bisnis</span>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2022</div>
+        <div class="timeline-title">900 Unit Terjual</div>
+        <div class="timeline-desc">Tonggak bersejarah: unit ke-900 terjual. Sebuah BMW M3 Competition berpindah tangan ke pelanggan setia kami di Surabaya. Tim Zixon merayakannya bukan sebagai angka, tapi sebagai bukti 900 kepercayaan yang berhasil kami jaga dengan sepenuh hati.</div>
+        <span class="timeline-tag">900 Unit</span>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2024</div>
+        <div class="timeline-title">Zixon 2.0 — Platform Digital</div>
+        <div class="timeline-desc">Peluncuran platform digital Zixon yang sepenuhnya baru. Riwayat kendaraan kini bisa diakses real-time, proses negosiasi lebih transparan, dan layanan aftersales terintegrasi. Lebih dari 50 mekanik bersertifikat bergabung memperkuat tim inspeksi kami.</div>
+        <span class="timeline-tag">Transformasi Digital</span>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2026</div>
+        <div class="timeline-title">Hari Ini & Masa Depan</div>
+        <div class="timeline-desc">Dengan lebih dari 1.000 unit terjual dan kepuasan pelanggan 99%, Zixon terus tumbuh. Kami sedang membangun jaringan showroom di Bali, Surabaya, dan Bandung — membawa standar premium kami ke seluruh penjuru Indonesia.</div>
+        <span class="timeline-tag">Kini & Mendatang</span>
+      </div>
+
+    </div>
+
+    <div class="founder-quote" id="founder-quote">
+      <div class="founder-quote-text">Kami tidak hanya menjual kendaraan. Kami menjual kepercayaan. Setiap unit yang keluar dari tangan kami harus membuat pembelinya merasa mendapatkan lebih dari yang mereka bayar — dalam hal kualitas, transparansi, dan ketenangan pikiran.</div>
+      <div class="founder-info">
+        <div class="founder-avatar">GF</div>
+        <div>
+          <div class="founder-name">GIO & FARID</div>
+          <div class="founder-role">Co-Founder & CEO, Zixon</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">Mengapa Zixon</div>
+      <h2 class="section-title">Standar <span>Berbeda</span></h2>
+    </div>
+    <div class="why-grid" id="why-grid">
+      <div class="why-item">
+        <div class="why-number">01</div>
+        <div class="why-title">Inspeksi 150 Titik</div>
+        <div class="why-desc">Setiap kendaraan melewati pemeriksaan teknis ketat oleh mekanik bersertifikat sebelum masuk katalog kami.</div>
+      </div>
+      <div class="why-item">
+        <div class="why-number">02</div>
+        <div class="why-title">Riwayat Transparan</div>
+        <div class="why-desc">Kami sajikan catatan kepemilikan, servis, dan riwayat kendaraan secara lengkap dan jujur tanpa disembunyikan.</div>
+      </div>
+      <div class="why-item">
+        <div class="why-number">03</div>
+        <div class="why-title">Harga Terbaik</div>
+        <div class="why-desc">Harga kami transparan, kompetitif, dan dapat dinegosiasi langsung. Tidak ada biaya tersembunyi.</div>
+      </div>
+      <div class="why-item">
+        <div class="why-number">04</div>
+        <div class="why-title">Respon Kilat</div>
+        <div class="why-desc">Tim kami siap merespons pertanyaan via WhatsApp dalam hitungan menit, 7 hari seminggu.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- LOKASI -->
+<section id="lokasi">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-eyebrow">Temukan Kami</div>
+      <h2 class="section-title">Showroom & <span>Area Kami</span></h2>
+    </div>
+
+    <div class="lokasi-grid">
+
+      <!-- MAP EMBED -->
+      <div class="map-wrap">
+        <span class="map-label">Jakarta Selatan</span>
+        <iframe
+          title="Lokasi Zixon Jakarta Selatan"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31730.36764591637!2d106.77852!3d-6.26076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f14d30079f0b%3A0x9516dc5b52088ffc!2sKebayoran%20Baru%2C%20Kota%20Jakarta%20Selatan!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+
+      <!-- NEARBY LIST -->
+      <div class="nearby-list">
+
+        <a class="nearby-item" href="https://maps.google.com/?q=TDA+Luxury+Toys+Jakarta+Selatan" target="_blank" rel="noopener">
+          <div class="nearby-icon">TDA</div>
+          <div class="nearby-content">
+            <div class="nearby-name">TDA Luxury Toys</div>
+            <div class="nearby-addr">Jl. Kramat Pela Raya No.79B, Gandaria Utara, Kebayoran Baru</div>
+            <div class="nearby-meta">
+              <span class="nearby-rating">4.7 (166 ulasan)</span>
+              <span class="nearby-type">Showroom Mewah</span>
+            </div>
+          </div>
+          <span class="nearby-arrow">→</span>
+        </a>
+
+        <a class="nearby-item" href="https://maps.google.com/?q=Valentino+Motor+Fatmawati+Jakarta+Selatan" target="_blank" rel="noopener">
+          <div class="nearby-icon">VM</div>
+          <div class="nearby-content">
+            <div class="nearby-name">Valentino Motor</div>
+            <div class="nearby-addr">Jl. RS. Fatmawati Raya No.42, Cipete Selatan, Cilandak</div>
+            <div class="nearby-meta">
+              <span class="nearby-rating">4.9 (52 ulasan)</span>
+              <span class="nearby-type">Showroom Mobil</span>
+            </div>
+          </div>
+          <span class="nearby-arrow">→</span>
+        </a>
+
+        <a class="nearby-item" href="https://maps.google.com/?q=PREMIUMCARS+Jakarta+Kebayoran+Lama" target="_blank" rel="noopener">
+          <div class="nearby-icon">PC</div>
+          <div class="nearby-content">
+            <div class="nearby-name">PREMIUMCARS Jakarta</div>
+            <div class="nearby-addr">Kebayoran Lama Utara, Kec. Kebayoran Lama, Jakarta Selatan</div>
+            <div class="nearby-meta">
+              <span class="nearby-rating">5.0 (11 ulasan)</span>
+              <span class="nearby-type">Showroom Mewah</span>
+            </div>
+          </div>
+          <span class="nearby-arrow">→</span>
+        </a>
+
+        <a class="nearby-item" href="https://maps.google.com/?q=Andala+Auto+Care+Panglima+Polim+Jakarta" target="_blank" rel="noopener">
+          <div class="nearby-icon service">AAC</div>
+          <div class="nearby-content">
+            <div class="nearby-name">Andala Auto Care</div>
+            <div class="nearby-addr">Jl. Panglima Polim No.62, Pulo, Kebayoran Baru</div>
+            <div class="nearby-meta">
+              <span class="nearby-rating">5.0 (828 ulasan)</span>
+              <span class="nearby-type">Bengkel Servis</span>
+            </div>
+          </div>
+          <span class="nearby-arrow">→</span>
+        </a>
+
+        <a class="nearby-item" href="https://maps.google.com/?q=Astra+Otoservice+Fatmawati+Jakarta+Selatan" target="_blank" rel="noopener">
+          <div class="nearby-icon service">AO</div>
+          <div class="nearby-content">
+            <div class="nearby-name">Astra Otoservice Fatmawati</div>
+            <div class="nearby-addr">Jl. RS. Fatmawati No.30 C-D, Cilandak Barat, Cilandak</div>
+            <div class="nearby-meta">
+              <span class="nearby-rating">4.9 (349 ulasan)</span>
+              <span class="nearby-type">Servis & Ban</span>
+            </div>
+          </div>
+          <span class="nearby-arrow">→</span>
+        </a>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FOOTER -->
+<footer id="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand-name">ZIXON</div>
+      <p class="footer-brand-desc">Marketplace kendaraan premium Indonesia. Kami percaya setiap perjalanan dimulai dengan kendaraan yang tepat.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Kendaraan</div>
+      <ul class="footer-links">
+        <li><a href="#katalog">Semua Koleksi</a></li>
+        <li><a href="#katalog">Mobil Sedan</a></li>
+        <li><a href="#katalog">Mobil SUV</a></li>
+        <li><a href="#katalog">Motor Sport</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Perusahaan</div>
+      <ul class="footer-links">
+        <li><a href="#why">Tentang Kami</a></li>
+        <li><a href="#sejarah">Sejarah Kami</a></li>
+        <li><a href="#">Karir</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Kontak</div>
+      <ul class="footer-links">
+        <li><a href="https://wa.me/6281514689097">WhatsApp</a></li>
+        <li><a href="mailto:cihuy@zixon.id">cihuy@zixon.id</a></li>
+        <li><a href="#">Instagram</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 <span>ZIXON</span>. Hak cipta dilindungi.</div>
+    <div class="footer-copy">Dibuat dengan dedikasi untuk kendaraan terbaik.</div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-label="Detail kendaraan">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modal-close" aria-label="Tutup">✕</button>
+    <div class="modal-img-wrap">
+      <img id="modal-img" src="" alt="" />
+      <div class="modal-img-overlay"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-eyebrow" id="modal-eyebrow"></div>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-price" id="modal-price"></div>
+
+      <div class="modal-section-title">Spesifikasi Teknis</div>
+      <div class="spec-grid" id="modal-specs"></div>
+
+      <div class="modal-section-title">Riwayat Kendaraan</div>
+      <div class="history-timeline" id="modal-history"></div>
+
+      <div class="modal-actions">
+        <a id="modal-wa-btn" href="#" target="_blank" rel="noopener" class="btn-whatsapp">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Beli Sekarang via WhatsApp
+        </a>
+        <button class="btn-ghost" onclick="closeModal()" style="cursor:pointer">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==============================================
+   DATA PRODUK
+============================================== */
+const WA_NUMBER = '6281514689097';
+
+const products = [
+  {
+    id: 1, type: 'mobil',
+    name: 'BMW 3 Series 330i',
+    category: 'Sedan Mewah',
+    year: 2021, color: 'Alpine White',
+    price: 720000000,
+    engine: '2.0L TwinPower Turbo',
+    condition: 'Sangat Baik',
+    mileage: '28.400 km',
+    image: 'https://img2.icarcdn.com/99961071/main-l_mobil-bekas-mobil123-bmw-3-series-330i-m-sport-sedan-indonesia_copy_6f67d41f-7bd7-4d93-9f70-222ec7dc9907.jpeg.webp?smia=xTM',
+    shortDesc: 'Sensasi berkendara sejati dalam balutan kemewahan modern.',
+    specs: [
+      { label: 'Tahun', value: '2021' },
+      { label: 'Warna', value: 'Alpine White' },
+      { label: 'Mesin', value: '2.0L Turbo' },
+      { label: 'Tenaga', value: '255 HP' },
+      { label: 'Transmisi', value: 'Otomatis 8-spd' },
+      { label: 'Jarak Tempuh', value: '28.400 km' },
+      { label: 'Kondisi', value: 'Sangat Baik' },
+      { label: 'Pajak', value: 'Panjang s/d 2025' },
+    ],
+    history: [
+      { date: '2021 — Pembelian Pertama', text: 'Dibeli baru dari dealer resmi BMW Jakarta. Pemilik pertama seorang eksekutif yang menggunakannya sebagai kendaraan harian premium.' },
+      { date: '2022 — Servis Pertama (15.000 km)', text: 'Servis rutin di BMW Authorized Service Center. Penggantian oli, filter udara, dan pengecekan rem.' },
+      { date: '2023 — Servis Kedua (25.000 km)', text: 'Penggantian busi, inspeksi suspensi, dan kalibrasi sistem infotainment. Tidak ada kerusakan serius.' },
+      { date: '2024 — Penjualan ke ZIXON', text: 'Pemilik memutuskan upgrade ke model terbaru. Kendaraan masuk inspeksi 150 titik ZIXON dan lulus sempurna.' },
+    ]
+  },
+  {
+    id: 2, type: 'motor',
+    name: 'Ducati Scrambler 800',
+    category: 'Motor Sport Premium',
+    year: 2022, color: 'Matte Black',
+    price: 310000000,
+    engine: '803cc L-Twin',
+    condition: 'Excellent',
+    mileage: '8.700 km',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRA0t7DCmZra4gYtljUNZ0pp2xGhoY_o9BVHMU7nniuRvDFEZjzViZ-O_8f&s=10',
+    shortDesc: 'Jiwa pemberontak dalam kemasan Italia yang memukau.',
+    specs: [
+      { label: 'Tahun', value: '2022' },
+      { label: 'Warna', value: 'Matte Black' },
+      { label: 'Mesin', value: '803cc L-Twin' },
+      { label: 'Tenaga', value: '73 HP' },
+      { label: 'Transmisi', value: 'Manual 6-spd' },
+      { label: 'Jarak Tempuh', value: '8.700 km' },
+      { label: 'Kondisi', value: 'Excellent' },
+      { label: 'Pajak', value: 'Panjang s/d 2026' },
+    ],
+    history: [
+      { date: '2022 — Imported & Registered', text: 'Unit CBU langsung dari Italia. Didaftarkan oleh kolektor motor mewah di Jakarta.' },
+      { date: '2023 — First Service', text: 'Servis awal di Ducati authorized dealer. Penggantian oli Shell Advance dan pengecekan rantai.' },
+      { date: '2024 — Penjualan ke ZIXON', text: 'Pemilik beralih ke motor touring. Unit dalam kondisi prima, tidak pernah jatuh.' },
+    ]
+  },
+  {
+    id: 3, type: 'mobil',
+    name: 'Toyota Land Cruiser 300',
+    category: 'SUV Premium',
+    year: 2023, color: 'Midnight Black Mica',
+    price: 2100000000,
+    engine: '3.3L V6 Twin Turbo',
+    condition: 'Baru Sekali',
+    mileage: '12.100 km',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnkyT8q7Latum_Tu4sZf5PZEEV7DNkezhK-58KTpZECVINdMvIQo9bYuJN&s=10',
+    shortDesc: 'Legenda SUV abadi. Kini hadir dengan teknologi masa depan.',
+    specs: [
+      { label: 'Tahun', value: '2023' },
+      { label: 'Warna', value: 'Midnight Black' },
+      { label: 'Mesin', value: '3.3L V6 Turbo' },
+      { label: 'Tenaga', value: '305 HP' },
+      { label: 'Transmisi', value: 'Otomatis 10-spd' },
+      { label: 'Jarak Tempuh', value: '12.100 km' },
+      { label: 'Kondisi', value: 'Baru Sekali' },
+      { label: 'Pajak', value: 'Panjang s/d 2027' },
+    ],
+    history: [
+      { date: '2023 — Pembelian Pertama', text: 'Dibeli baru dari dealer resmi Toyota. Pemilik seorang pengusaha sukses Surabaya yang sangat merawat kendaraannya.' },
+      { date: '2024 — Servis (10.000 km)', text: 'Penggantian oli dan filter. Semua sistem berjalan sempurna. Garasi tertutup, tidak pernah dipakai hujan berat.' },
+      { date: '2024 — Penjualan ke ZIXON', text: 'Pemilik pindah ke luar negeri dan tidak bisa membawa kendaraan. Kondisi luar biasa dengan semua aksesori original.' },
+    ]
+  },
+  {
+    id: 4, type: 'motor',
+    name: 'Honda CB500F',
+    category: 'Motor Naked',
+    year: 2021, color: 'Graphite Black',
+    price: 95000000,
+    engine: '471cc Parallel Twin',
+    condition: 'Baik',
+    mileage: '22.000 km',
+    image: 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=80',
+    shortDesc: 'Motor naked harian yang nyaman, lincah, dan tangguh.',
+    specs: [
+      { label: 'Tahun', value: '2021' },
+      { label: 'Warna', value: 'Graphite Black' },
+      { label: 'Mesin', value: '471cc Parallel Twin' },
+      { label: 'Tenaga', value: '47 HP' },
+      { label: 'Transmisi', value: 'Manual 6-spd' },
+      { label: 'Jarak Tempuh', value: '22.000 km' },
+      { label: 'Kondisi', value: 'Baik' },
+      { label: 'Pajak', value: 'Panjang s/d 2025' },
+    ],
+    history: [
+      { date: '2021 — Pembelian Pertama', text: 'Dibeli baru di dealer Honda Bandung. Dipakai mahasiswa teknik sebagai motor harian selama 2 tahun.' },
+      { date: '2022 — Servis Berkala', text: 'Servis rutin setiap 4.000 km. Rekaman servis lengkap tersedia di buku garansi.' },
+      { date: '2023 — Minor Upgrade', text: 'Penggantian knalpot aftermarket bersuara merdu, handgrip ergonomis, dan lampu LED aftermarket.' },
+      { date: '2024 — Penjualan ke ZIXON', text: 'Pemilik wisuda dan pindah kota, tidak lagi membutuhkan motor. Kondisi sesuai usia, terawat baik.' },
+    ]
+  },
+  {
+    id: 5, type: 'mobil',
+    name: 'Mercedes-Benz C200',
+    category: 'Sedan Executive',
+    year: 2020, color: 'Obsidian Black',
+    price: 610000000,
+    engine: '1.5L EQ Boost Turbo',
+    condition: 'Sangat Baik',
+    mileage: '45.200 km',
+    image: 'https://mercedes-ina.com/wp-content/uploads/2022/07/c200-2022-600x400.jpg',
+    shortDesc: 'Simbol status dan kecanggihan dalam satu kendaraan elegan.',
+    specs: [
+      { label: 'Tahun', value: '2020' },
+      { label: 'Warna', value: 'Obsidian Black' },
+      { label: 'Mesin', value: '1.5L EQ Boost' },
+      { label: 'Tenaga', value: '184 HP' },
+      { label: 'Transmisi', value: 'Otomatis 9G-Tronic' },
+      { label: 'Jarak Tempuh', value: '45.200 km' },
+      { label: 'Kondisi', value: 'Sangat Baik' },
+      { label: 'Pajak', value: 'Aktif s/d 2025' },
+    ],
+    history: [
+      { date: '2020 — Pembelian Pertama', text: 'Dibeli baru dari dealer resmi Mercedes-Benz Jakarta oleh seorang direktur perusahaan.' },
+      { date: '2021 — Servis Pertama', text: 'Servis di MB Authorized dealer, penggantian oli dan filter. Buku servis tertanda rapi.' },
+      { date: '2022–2023 — Servis Berkala', text: 'Servis rutin setiap 10.000 km di dealer resmi. Ban diganti 2023 dengan merek original.' },
+      { date: '2024 — Penjualan ke ZIXON', text: 'Pemilik upgrade ke S-Class. Unit terawat sempurna, interior bersih tanpa bau rokok.' },
+    ]
+  },
+  {
+    id: 6, type: 'motor',
+    name: 'Kawasaki Z900',
+    category: 'Supernaked',
+    year: 2023, color: 'Metallic Spark Black',
+    price: 220000000,
+    engine: '948cc In-Line 4',
+    condition: 'Excellent',
+    mileage: '5.500 km',
+    image: 'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?w=800&q=80',
+    shortDesc: 'Sang predator jalanan. Performa menggelegar, tampil tanpa kompromi.',
+    specs: [
+      { label: 'Tahun', value: '2023' },
+      { label: 'Warna', value: 'Metallic Black' },
+      { label: 'Mesin', value: '948cc 4-cyl' },
+      { label: 'Tenaga', value: '125 HP' },
+      { label: 'Transmisi', value: 'Manual 6-spd' },
+      { label: 'Jarak Tempuh', value: '5.500 km' },
+      { label: 'Kondisi', value: 'Excellent' },
+      { label: 'Pajak', value: 'Panjang s/d 2027' },
+    ],
+    history: [
+      { date: '2023 — Pembelian Baru', text: 'Unit baru langsung dari Kawasaki Motor Indonesia. Pemilik seorang anggota club motor premium.' },
+      { date: '2023 — First Service', text: 'Servis awal 1.000 km di dealer resmi Kawasaki. Semua komponen berjalan sempurna.' },
+      { date: '2024 — Penjualan ke ZIXON', text: 'Pemilik mendapatkan penugasan kerja ke luar negeri. Motor tidak pernah jatuh, kondisi sangat prima.' },
+    ]
+  },
+  {
+    id: 7, type: 'mobil',
+    name: 'Porsche 911',
+    category: 'Sport',
+    year: 2023, color: 'Merah',
+    price: 300000000,
+    engine: 'Turbo',
+    condition: 'Gagah',
+    mileage: '200 km',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsuIPMIc3Y__K9lYZKL1wNqnYDLHnEO38GxM_AnUx7wMkZM0F0AyZRx7M&s=10',
+    shortDesc: 'Mobil sport mewah.',
+    specs: [
+      { label: 'Tahun', value: '2023' },
+      { label: 'Warna', value: 'Merah' },
+      { label: 'Mesin', value: 'Turbo' },
+      { label: 'Tenaga', value: '500 HP' },
+      { label: 'Transmisi', value: 'Otomatis' },
+      { label: 'Jarak Tempuh', value: '200 km' },
+      { label: 'Kondisi', value: 'Baru' },
+      { label: 'Pajak', value: 'Panjang s/d 2026' },
+    ],
+    history: [
+      { date: '2023 — Pembelian Baru', text: 'Unit baru langsung dari dealer resmi. Pemilik seorang kolektor mobil sport.' },
+      { date: '2023 — First Service', text: 'Servis awal di dealer resmi. Semua komponen berjalan sempurna.' },
+      { date: '2024 — Penjualan ke ZIXON', text: 'Pemilik mendapatkan penugasan kerja ke luar negeri. Motor tidak pernah jatuh.' },
+    ]
+  },
+];
+
+/* ==============================================
+   LOADER
+============================================== */
+function runLoader() {
+  const bar = document.getElementById('loader-bar');
+  const pct = document.getElementById('loader-pct');
+  const logo = document.querySelector('.loader-logo');
+
+  gsap.to(logo, { opacity: 1, y: 0, duration: .6, ease: 'power2.out' });
+
+  let p = 0;
+  const iv = setInterval(() => {
+    p += Math.random() * 12;
+    if (p >= 100) { p = 100; clearInterval(iv); finishLoader(); }
+    bar.style.width = p + '%';
+    pct.textContent = Math.floor(p) + '%';
+  }, 80);
+}
+
+function finishLoader() {
+  const loader = document.getElementById('loader');
+  gsap.to(loader, {
+    yPercent: -100, duration: 1, ease: 'power4.inOut', delay: .3,
+    onComplete: () => { loader.style.display = 'none'; animateHero(); }
+  });
+}
+
+/* ==============================================
+   HERO ANIMATION
+============================================== */
+function animateHero() {
+  const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  tl.to('#hero-eyebrow', { opacity: 1, y: 0, duration: .8 })
+    .to('#hero-title', { opacity: 1, y: 0, duration: 1 }, '-=.5')
+    .to('#hero-sub', { opacity: 1, y: 0, duration: .8 }, '-=.6')
+    .to('#hero-actions', { opacity: 1, y: 0, duration: .8 }, '-=.5')
+    .to('#hero-stats', { opacity: 1, y: 0, duration: .8 }, '-=.4')
+    .to('#scroll-indicator', { opacity: 1, duration: .6 }, '-=.2')
+    .to('#hero-number', { opacity: 1, duration: 1, ease: 'power2.out' }, '-=.8');
+
+  setTimeout(() => {
+    document.querySelectorAll('[data-count]').forEach(el => {
+      const target = +el.dataset.count;
+      gsap.to({ val: 0 }, {
+        val: target, duration: 2, ease: 'power2.out',
+        onUpdate: function() { el.textContent = Math.round(this.targets()[0].val) + (el.dataset.suffix || ''); }
+      });
+    });
+  }, 800);
+}
+
+/* ==============================================
+   RENDER PRODUCTS
+============================================== */
+function formatPrice(n) {
+  if (n >= 1000000000) return 'Rp ' + (n / 1000000000).toFixed(1).replace('.', ',') + ' M';
+  return 'Rp ' + (n / 1000000).toFixed(0) + ' Jt';
+}
+
+function renderProducts(filter = 'all') {
+  const grid = document.getElementById('product-grid');
+  const filtered = filter === 'all' ? products : products.filter(p => p.type === filter);
+
+  grid.innerHTML = filtered.map(p => `
+    <div class="product-card" data-id="${p.id}" data-aos>
+      <div class="card-image-wrap">
+        <img src="${p.image}" alt="${p.name}" loading="lazy" />
+        <div class="card-overlay">
+          <div class="card-overlay-text">${p.shortDesc}</div>
+        </div>
+        <div class="card-badge ${p.type === 'motor' ? 'motor' : ''}">${p.type.toUpperCase()}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-category">${p.category}</div>
+        <div class="card-name">${p.name}</div>
+        <div class="card-specs">
+          <div class="card-spec">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            ${p.year}
+          </div>
+          <div class="card-spec">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/><path d="M12 6v6l3 3"/></svg>
+            ${p.mileage}
+          </div>
+          <div class="card-spec">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            ${p.color}
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="card-price">
+            <span class="price-prefix">Harga</span>
+            ${formatPrice(p.price)}
+          </div>
+          <button class="card-btn" onclick="openModal(${p.id})" data-cursor>
+            Detail <span>→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  gsap.to('.product-card', {
+    opacity: 1, y: 0, duration: .6, ease: 'power3.out',
+    stagger: .08, clearProps: 'transform'
+  });
+}
+
+/* ==============================================
+   FILTER
+============================================== */
+document.getElementById('filter-tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-tab');
+  if (!btn) return;
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  gsap.to('.product-card', {
+    opacity: 0, y: 20, duration: .25, ease: 'power2.in',
+    onComplete: () => renderProducts(btn.dataset.filter)
+  });
+});
+
+/* ==============================================
+   MODAL
+============================================== */
+function openModal(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('modal-img').src = p.image;
+  document.getElementById('modal-img').alt = p.name;
+  document.getElementById('modal-eyebrow').textContent = p.category + ' · ' + p.year;
+  document.getElementById('modal-title').textContent = p.name;
+  document.getElementById('modal-price').innerHTML = `${formatPrice(p.price)} <span>Nego</span>`;
+
+  document.getElementById('modal-specs').innerHTML = p.specs.map(s =>
+    `<div class="spec-item"><div class="spec-label">${s.label}</div><div class="spec-value">${s.value}</div></div>`
+  ).join('');
+
+  document.getElementById('modal-history').innerHTML = p.history.map(h =>
+    `<div class="history-item"><div class="history-dot"></div><div class="history-content"><div class="history-date">${h.date}</div><div class="history-text">${h.text}</div></div></div>`
+  ).join('');
+
+  const msg = encodeURIComponent(
+    `Halo ZIXON! 👋\n\nSaya tertarik dengan kendaraan berikut:\n\n` +
+    `🚗 *${p.name}*\n` +
+    `📅 Tahun: ${p.year}\n` +
+    `💰 Harga: ${formatPrice(p.price)}\n` +
+    `🔗 Ref: #ZIXON-${p.id.toString().padStart(4,'0')}\n\n` +
+    `Mohon informasi lebih lanjut. Terima kasih!`
+  );
+  document.getElementById('modal-wa-btn').href = `https://wa.me/${WA_NUMBER}?text=${msg}`;
+
+  const modal = document.getElementById('modal');
+  const overlay = document.getElementById('modal-overlay');
+
+  // Clear any leftover GSAP inline styles from previous close animation
+  gsap.killTweensOf(modal);
+  gsap.set(modal, { clearProps: 'all' });
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Scroll modal back to top on reopen
+  modal.scrollTop = 0;
+
+  gsap.fromTo(modal,
+    { scale: .95, opacity: 0 },
+    { scale: 1, opacity: 1, duration: .4, ease: 'back.out(1.2)' }
+  );
+}
+
+function closeModal() {
+  const modal = document.getElementById('modal');
+  gsap.to(modal, {
+    scale: .95, opacity: 0, duration: .25, ease: 'power2.in',
+    onComplete: () => {
+      document.getElementById('modal-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+      // Clear inline styles so next open starts fresh
+      gsap.set(modal, { clearProps: 'all' });
+    }
+  });
+}
+
+document.getElementById('modal-close').addEventListener('click', closeModal);
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+/* ==============================================
+   SCROLL ANIMATIONS (ScrollTrigger)
+============================================== */
+function initScrollAnimations() {
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.utils.toArray('.section-header').forEach(el => {
+    gsap.from(el, {
+      opacity: 0, y: 40, duration: .9, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 85%', once: true }
+    });
+  });
+
+  gsap.utils.toArray('.nearby-item').forEach((el, i) => {
+    gsap.to(el, {
+      opacity: 1, x: 0, duration: .6, ease: 'power3.out',
+      delay: i * .08,
+      scrollTrigger: { trigger: el, start: 'top 90%', once: true }
+    });
+  });
+
+  gsap.utils.toArray('.timeline-item').forEach((el, i) => {
+    gsap.to(el, {
+      opacity: 1, x: 0, duration: .7, ease: 'power3.out',
+      delay: i * .08,
+      scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+    });
+  });
+
+  gsap.to('#founder-quote', {
+    opacity: 1, y: 0, duration: .9, ease: 'power3.out',
+    scrollTrigger: { trigger: '#founder-quote', start: 'top 85%', once: true }
+  });
+
+  gsap.utils.toArray('.why-item').forEach((el, i) => {
+    gsap.to(el, {
+      opacity: 1, y: 0, duration: .7, ease: 'power3.out',
+      delay: i * .1,
+      scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+    });
+  });
+
+  gsap.to('.hero-bg-glow', {
+    yPercent: 30,
+    scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.5 }
+  });
+
+  ScrollTrigger.create({
+    start: 'top -80px',
+    onUpdate: self => {
+      document.getElementById('navbar').classList.toggle('scrolled', self.progress > 0);
+    }
+  });
+}
+
+/* ==============================================
+   CUSTOM CURSOR
+============================================== */
+function initCursor() {
+  const cursor = document.getElementById('cursor');
+  if (!cursor) return;
+  let mx = 0, my = 0, cx = 0, cy = 0;
+
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.querySelectorAll('a, button, [data-cursor]').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+
+  gsap.ticker.add(() => {
+    cx += (mx - cx) * .12;
+    cy += (my - cy) * .12;
+    cursor.style.left = cx + 'px';
+    cursor.style.top = cy + 'px';
+  });
+}
+
+/* ==============================================
+   MOBILE NAV
+============================================== */
+document.getElementById('mobile-nav-btn').addEventListener('click', () => {
+  const mn = document.getElementById('mobile-nav');
+  mn.classList.add('open');
+  const links = mn.querySelectorAll('a');
+  gsap.to(links, { opacity: 1, y: 0, duration: .5, ease: 'power3.out', stagger: .08 });
+  document.body.style.overflow = 'hidden';
+});
+function closeMobileNav() {
+  document.getElementById('mobile-nav').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('mobile-nav-close').addEventListener('click', closeMobileNav);
+
+/* ==============================================
+   SMOOTH SCROLL
+============================================== */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+/* ==============================================
+   PRODUCT CARD hover re-register cursor
+============================================== */
+function reRegisterCursor() {
+  const cursor = document.getElementById('cursor');
+  if (!cursor) return;
+  document.querySelectorAll('.card-btn, .product-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+}
+
+/* ==============================================
+   INIT
+============================================== */
+window.addEventListener('DOMContentLoaded', () => {
+  renderProducts();
+  initScrollAnimations();
+  initCursor();
+  runLoader();
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        gsap.to(e.target, { opacity: 1, y: 0, duration: .6, ease: 'power3.out' });
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.product-card').forEach(c => observer.observe(c));
+
+  setTimeout(reRegisterCursor, 200);
+});
+</script>
+</body>
+</html>
